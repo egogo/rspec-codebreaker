@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+
+require 'codebreaker'
+
+digits = (1..6).to_a
+
+game = Codebreaker::Game.new
+game.start (0..3).collect { digits.delete(digits.sample) }.join
+
+while guess = gets.chomp
+  game.guess(guess)
+end
