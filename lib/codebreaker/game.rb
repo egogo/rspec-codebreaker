@@ -6,7 +6,7 @@ module Codebreaker
       @output = output
     end
 
-    def start(secret, attempts=25)
+    def start(secret = Codebreaker::Game.generate_secret, attempts=25)
       @secret, @attpempts = secret, attempts
       @output.puts 'Welcome to CodeBreaker!'
       @output.puts 'Enter the code:'
@@ -18,9 +18,7 @@ module Codebreaker
         if @attpempts > 0 && guess == @secret
           @output.puts Codebreaker::Marker.mark(@secret, guess)
           @output.puts 'Congratulations! You won the game!'
-          @output.puts 'Please enter your name to save score:'
-          name = gets.chomp
-          @output.puts "Score saved: #{name} --- #{@attpempts}"
+          save_score
         elsif @attpempts == 0
           @output.puts 'Game Over!'
           @output.puts "The code is: #@secret"
@@ -31,17 +29,31 @@ module Codebreaker
         command(guess)
       end
     end
+    
+    def self.generate_secret
+      digits = (1..6).to_a
+      game = Codebreaker::Game.new
+      (0..3).collect { digits.delete(digits.sample) }.join
+    end
 
     private
+    
+    def save_score
+      @output.puts 'Please enter your name to save score:'
+      name = gets.chomp
+      @output.puts "Score saved: #{name} --- #{@attpempts}"
+    end
 
     def command(command)
       case
+        when command == 'restart'
+          start
         when command == 'hint'
           @output.puts "Here is the number: #{@secret[rand(0..3)]}"
         when command == 'exit'
           exit
         else
-          @output.puts 'No such command, available commands: exit, hint'
+          @output.puts 'No such command, available commands: exit, hint, restart'
       end
     end
 

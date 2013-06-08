@@ -26,22 +26,24 @@ describe Codebreaker::Game do
         output.should_receive(:puts).with('++--')
         game.guess('1243')
       end
-
-      it 'shows "Game Over" when number of attempts exceeds' do
-        game.guess('1111')
-        output.should_receive(:puts).with('Game Over!')
-        game.guess('1111')
-      end
-
-      it 'displays the code after game is over' do
-        game.guess('1111')
-        output.should_receive(:puts).with("The code is: #{secret}")
-        game.guess('1111')
+      
+      context 'game over' do
+        before { game.start(secret,1) }
+  
+        it 'shows "Game Over" when number of attempts exceeds' do
+          output.should_receive(:puts).with('Game Over!')
+          game.guess('1111')
+        end
+  
+        it 'displays the code after game is over' do
+          output.should_receive(:puts).with("The code is: #{secret}")
+          game.guess('1111')
+        end
       end
     end
 
     context 'right code' do
-      before { game.stub!(:gets).and_return('Name') }
+      before { game.stub(:gets).and_return('Name') }
 
       it 'shows ++++' do
         output.should_receive(:puts).with('++++')
@@ -73,9 +75,14 @@ describe Codebreaker::Game do
         output.should_receive(:puts).with(/Here is the number: [#{secret}]/)
         game.guess('hint')
       end
+      
+      it 'restarts the game when "restart" command received' do
+        game.should_receive(:start)
+        game.guess('restart')
+      end
 
       it 'shows "no such command" message and the list of available commands' do
-        output.should_receive(:puts).with("No such command, available commands: exit, hint")
+        output.should_receive(:puts).with("No such command, available commands: exit, hint, restart")
         game.guess('foo')
       end
     end
